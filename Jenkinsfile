@@ -105,6 +105,7 @@ pipeline{
 
                   sh 'docker login -u vikashashoke -p ${dockerHub_pass} '
                   sh 'docker image push vikashashoke/webapp:latest'
+                  sh 'docker rmi vikashashoke/webapp:latest'
 
 }
 
