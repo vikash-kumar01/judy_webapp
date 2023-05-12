@@ -95,5 +95,22 @@ pipeline{
                 }
             }
         }
+        stage('Docker Image Build & Push'){
+
+             steps{
+
+                script{
+                  withCredentials([string(credentialsId: 'docker', variable: 'dockerHub_pass')]) {
+                  sh 'docker image build -t vikashashoke/webapp:latest . '
+
+                  sh 'docker login -u vikashashoke -p ${dockerHub_pass} '
+                  sh 'docker image push vikashashoke/webapp:latest'
+
+}
+
+
+                }               
+            }
+        }
     }
 }
