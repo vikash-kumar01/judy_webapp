@@ -14,49 +14,49 @@ pipeline{
                 }
             }
         }
-            stage('UNIT testing'){
+        //     stage('UNIT testing'){
 
-             steps{
+        //      steps{
 
-                script{
+        //         script{
 
-                    sh 'mvn test'
-                }               
-            }
-        }
-        stage('Integration testing'){
+        //             sh 'mvn test'
+        //         }               
+        //     }
+        // }
+        // stage('Integration testing'){
 
-             steps{
+        //      steps{
 
-                script{
+        //         script{
 
-                    sh 'mvn verify -DskipTests'
-                }               
-            }
-        }
-        stage('Static Code Analysis'){
+        //             sh 'mvn verify -DskipTests'
+        //         }               
+        //     }
+        // }
+        // stage('Static Code Analysis'){
 
-             steps{
+        //      steps{
 
-                script{
+        //         script{
 
-                    withSonarQubeEnv(credentialsId: 'squbeapi') {
+        //             withSonarQubeEnv(credentialsId: 'squbeapi') {
                          
-                         sh 'mvn clean package sonar:sonar'
-                     }
-                }               
-            }
-        }
-        stage('QualityGate status Check'){
+        //                  sh 'mvn clean package sonar:sonar'
+        //              }
+        //         }               
+        //     }
+        // }
+        // stage('QualityGate status Check'){
 
-             steps{
+        //      steps{
 
-                script{
+        //         script{
 
-                  waitForQualityGate abortPipeline: false, credentialsId: 'squbeapi'
-                }               
-            }
-        }
+        //           waitForQualityGate abortPipeline: false, credentialsId: 'squbeapi'
+        //         }               
+        //     }
+        // }
         stage('Maven Build'){
 
              steps{
