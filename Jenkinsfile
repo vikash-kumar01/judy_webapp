@@ -13,8 +13,9 @@ pipeline{
                     git branch: 'devops', url: 'https://github.com/mohammed-mubashshir-alam/java_webapp.git'
                 }
             }
+        }
             stage('UNIT testing'){
-                
+
              steps{
 
                 script{
