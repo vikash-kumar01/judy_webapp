@@ -73,50 +73,46 @@ pipeline{
                 }               
             }
         }
-        stage('Nexus artifact upload'){
+        // stage('Nexus artifact upload'){
 
-            steps{
+        //     steps{
 
-                script{
+        //         script{
 
-                    def readPomVersion = readMavenPom file : 'pom.xml'
+        //             def readPomVersion = readMavenPom file : 'pom.xml'
 
-                    def nexusRepo = readPomVersion.version.endsWith("SNAPSHOT") ? "devops-snapshot" : "devops-release"
+        //             def nexusRepo = readPomVersion.version.endsWith("SNAPSHOT") ? "devops-snapshot" : "devops-release"
 
-                    nexusArtifactUploader artifacts: [
-                        [
-                            artifactId: 'springboot',
-                            classifier: '', 
-                            file: 'target/Uber.jar', 
-                            type: 'jar'
-                            ]
-                        ], 
-                        credentialsId: 'nexus-creds',
-                         groupId: 'com.example', 
-                         nexusUrl: '18.212.216.107:8081', 
-                         nexusVersion: 'nexus3', 
-                         protocol: 'http', 
-                         repository: nexusRepo, 
-                         version: "${readPomVersion.version}"
-                }
-            }
-        }
+        //             nexusArtifactUploader artifacts: [
+        //                 [
+        //                     artifactId: 'springboot',
+        //                     classifier: '', 
+        //                     file: 'target/Uber.jar', 
+        //                     type: 'jar'
+        //                     ]
+        //                 ], 
+        //                 credentialsId: 'nexus-creds',
+        //                  groupId: 'com.example', 
+        //                  nexusUrl: '18.212.216.107:8081', 
+        //                  nexusVersion: 'nexus3', 
+        //                  protocol: 'http', 
+        //                  repository: nexusRepo, 
+        //                  version: "${readPomVersion.version}"
+        //         }
+        //     }
+        // }
         stage('Docker Image Build & Push'){
 
              steps{
 
                 script{
                   withCredentials([string(credentialsId: 'docker', variable: 'dockerHub_pass')]) {
-                   sh """
-                    export DOCKER_BUILDKIT=0
-                    export COMPOSE_DOCKER_CLI_BUILD=0
-                   """    
-                  sh 'docker image build -t mohammedmubashshiralam/webapp:latest . '
-
-                  sh 'docker login -u mohammedmubashshiralam -p ${dockerHub_pass} '
-                  sh 'docker image push mohammedmubashshiralam/webapp:latest'
-                  sh 'docker rmi mohammedmubashshiralam/webapp:latest'
-
+                  sh """
+                  docker image build -t mohammedmubashshiralam/webapp:latest . 
+                  docker login -u mohammedmubashshiralam -p ${dockerHub_pass} 
+                  docker image push mohammedmubashshiralam/webapp:latest
+                  docker rmi mohammedmubashshiralam/webapp:latest
+                  """
                   }
                 }               
             }
