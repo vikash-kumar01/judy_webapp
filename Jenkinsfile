@@ -107,6 +107,10 @@ pipeline{
 
                 script{
                   withCredentials([string(credentialsId: 'docker', variable: 'dockerHub_pass')]) {
+                   sh """
+                    export DOCKER_BUILDKIT=0
+                    export COMPOSE_DOCKER_CLI_BUILD=0
+                   """    
                   sh 'docker image build -t mohammedmubashshiralam/webapp:latest . '
 
                   sh 'docker login -u mohammedmubashshiralam -p ${dockerHub_pass} '
