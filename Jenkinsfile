@@ -2,6 +2,12 @@ pipeline{
 
     agent any
 
+    environment{
+
+        ACCESS_KEY= credentials('AWS_ACESS_KEY_ID')
+        SECRET_KEY= credentials('AWS_SECRET_KEY_ID')
+    }
+
     stages{
 
         stage('Git Checkout'){
@@ -101,16 +107,31 @@ pipeline{
 
                 script{
                   withCredentials([string(credentialsId: 'docker', variable: 'dockerHub_pass')]) {
-                  sh 'docker image build -t vikashashoke/webapp:latest . '
+                  sh 'docker image build -t mohammedmubashshiralam/webapp:latest . '
 
-                  sh 'docker login -u vikashashoke -p ${dockerHub_pass} '
-                  sh 'docker image push vikashashoke/webapp:latest'
-                  sh 'docker rmi vikashashoke/webapp:latest'
+                  sh 'docker login -u mohammedmubashshiralam -p ${dockerHub_pass} '
+                  sh 'docker image push mohammedmubashshiralam/webapp:latest'
+                  sh 'docker rmi mohammedmubashshiralam/webapp:latest'
 
-}
-
-
+                  }
                 }               
+            }
+        }
+        stage('EKS Cluster Creation'){
+
+             steps{
+
+                script{
+
+                 dir('eks_module') { 
+                    
+
+                    sh """
+                       terraform init
+                    terraform plan -var 'access_key=$ACCESS_KEY' -var 'secret_key=$SECRET_KEY' --var-file=./config/terraform.tfvars
+                    terraform apply -var 'access_key=$ACCESS_KEY' -var 'secret_key=$SECRET_KEY' --var-file=./config/terraform.tfvars --auto-approve
+                    """
+                 }           
             }
         }
     }
