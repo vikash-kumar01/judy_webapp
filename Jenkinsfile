@@ -26,130 +26,130 @@ pipeline{
                 }
             }
         }
-        //     stage('UNIT testing'){
+            stage('UNIT testing'){
 
-        //      steps{
+             steps{
 
-        //         script{
+                script{
 
-        //             sh 'mvn test'
-        //         }               
-        //     }
-        // }
-        // stage('Integration testing'){
+                    sh 'mvn test'
+                }               
+            }
+        }
+        stage('Integration testing'){
 
-        //      steps{
+             steps{
 
-        //         script{
+                script{
 
-        //             sh 'mvn verify -DskipTests'
-        //         }               
-        //     }
-        // }
-        // stage('Static Code Analysis'){
+                    sh 'mvn verify -DskipTests'
+                }               
+            }
+        }
+        stage('Static Code Analysis'){
 
-        //      steps{
+             steps{
 
-        //         script{
+                script{
 
-        //             withSonarQubeEnv(credentialsId: 'squbeapi') {
+                    withSonarQubeEnv(credentialsId: 'squbeapi') {
                          
-        //                  sh 'mvn clean package sonar:sonar'
-        //              }
-        //         }               
-        //     }
-        // }
-        // stage('QualityGate status Check'){
+                         sh 'mvn clean package sonar:sonar'
+                     }
+                }               
+            }
+        }
+        stage('QualityGate status Check'){
 
-        //      steps{
+             steps{
 
-        //         script{
+                script{
 
-        //           waitForQualityGate abortPipeline: false, credentialsId: 'squbeapi'
-        //         }               
-        //     }
-        // }
-        // stage('Maven Build'){
+                  waitForQualityGate abortPipeline: false, credentialsId: 'squbeapi'
+                }               
+            }
+        }
+        stage('Maven Build'){
 
-        //      steps{
+             steps{
 
-        //         script{
+                script{
 
-        //           sh 'mvn clean install'
-        //         }               
-        //     }
-        // }
-        // stage('Nexus artifact upload'){
+                  sh 'mvn clean install'
+                }               
+            }
+        }
+        stage('Nexus artifact upload'){
 
-        //     steps{
+            steps{
 
-        //         script{
+                script{
 
-        //             def readPomVersion = readMavenPom file : 'pom.xml'
+                    def readPomVersion = readMavenPom file : 'pom.xml'
 
-        //             def nexusRepo = readPomVersion.version.endsWith("SNAPSHOT") ? "devops-snapshot" : "devops-release"
+                    def nexusRepo = readPomVersion.version.endsWith("SNAPSHOT") ? "devops-snapshot" : "devops-release"
 
-        //             nexusArtifactUploader artifacts: [
-        //                 [
-        //                     artifactId: 'springboot',
-        //                     classifier: '', 
-        //                     file: 'target/Uber.jar', 
-        //                     type: 'jar'
-        //                     ]
-        //                 ], 
-        //                 credentialsId: 'nexus-creds',
-        //                  groupId: 'com.example', 
-        //                  nexusUrl: '18.212.216.107:8081', 
-        //                  nexusVersion: 'nexus3', 
-        //                  protocol: 'http', 
-        //                  repository: nexusRepo, 
-        //                  version: "${readPomVersion.version}"
-        //         }
-        //     }
-        // }
-        // stage('Docker Image Build'){
+                    nexusArtifactUploader artifacts: [
+                        [
+                            artifactId: 'springboot',
+                            classifier: '', 
+                            file: 'target/Uber.jar', 
+                            type: 'jar'
+                            ]
+                        ], 
+                        credentialsId: 'nexus-creds',
+                         groupId: 'com.example', 
+                         nexusUrl: '3.89.58.183:8081', 
+                         nexusVersion: 'nexus3', 
+                         protocol: 'http', 
+                         repository: nexusRepo, 
+                         version: "${readPomVersion.version}"
+                }
+            }
+        }
+        stage('Docker Image Build'){
 
-        //      steps{
+             steps{
 
-        //         script{
+                script{
 
-        //           sh 'docker image build -t mohammedmubashshiralam/webapp:latest .'
-        //         }               
-        //     }
-        // }
-        // stage('Docker Image Push'){
+                  sh 'docker image build -t mohammedmubashshiralam/webapp:latest .'
+                }               
+            }
+        }
+        stage('Docker Image Push'){
 
-        //      steps{
+             steps{
 
-        //         script{
-        //       withCredentials([string(credentialsId: 'dockerhub_pass', variable: 'dockerhub')]) {
-        //           sh """
-        //           docker login -u mohammedmubashshiralam -p ${dockerhub}
-        //           docker image push mohammedmubashshiralam/webapp:latest
-        //           docker rmi mohammedmubashshiralam/webapp:latest
-        //           """
-        //           }
-        //         }               
-        //     }
-        // }
-        // stage('EKS Cluster Creation'){
+                script{
+              withCredentials([string(credentialsId: 'dockerhub_pass', variable: 'dockerhub')]) {
+                  sh """
+                  docker login -u mohammedmubashshiralam -p ${dockerhub}
+                  docker image push mohammedmubashshiralam/webapp:latest
+                  docker rmi mohammedmubashshiralam/webapp:latest
+                  """
+                  }
+                }               
+            }
+        }
+        stage('EKS Cluster Creation'){
 
-        //      steps{
+             steps{
 
-        //         script{
+                script{
 
-        //          dir('eks_module') { 
+                 dir('eks_module') { 
                     
 
-        //             sh """
-        //             terraform init
-        //             terraform plan -var 'access_key=$ACCESS_KEY' -var 'secret_key=$SECRET_KEY' --var-file=./config/terraform.tfvars
-        //             terraform apply -var 'access_key=$ACCESS_KEY' -var 'secret_key=$SECRET_KEY' --var-file=./config/terraform.tfvars --auto-approve
-        //             """
-        //          }           
-        //     }
-        // }
-        // }
+                    sh """
+                    terraform init
+                    terraform plan -var 'access_key=$ACCESS_KEY' -var 'secret_key=$SECRET_KEY' --var-file=./config/terraform.tfvars
+                    terraform apply -var 'access_key=$ACCESS_KEY' -var 'secret_key=$SECRET_KEY' --var-file=./config/terraform.tfvars --auto-approve
+                    """
+                 }           
+            }
+        }
+        }
         stage('Connect to EKS'){
 
              steps{
