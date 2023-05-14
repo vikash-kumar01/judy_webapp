@@ -2,6 +2,12 @@ pipeline{
 
     agent any
 
+    parameters{
+
+        string(name: 'cluster', defaultValue: 'demo-cluster', description: 'Choose EKS ClusterName')
+        string(name: 'region', defaultValue: 'us-east-1', description: 'Choose EKS Cluster Region')
+    }
+
     environment{
 
         ACCESS_KEY= credentials('AWS_ACESS_KEY_ID')
@@ -63,16 +69,16 @@ pipeline{
         //         }               
         //     }
         // }
-        stage('Maven Build'){
+        // stage('Maven Build'){
 
-             steps{
+        //      steps{
 
-                script{
+        //         script{
 
-                  sh 'mvn clean install'
-                }               
-            }
-        }
+        //           sh 'mvn clean install'
+        //         }               
+        //     }
+        // }
         // stage('Nexus artifact upload'){
 
         //     steps{
@@ -101,39 +107,73 @@ pipeline{
         //         }
         //     }
         // }
-        stage('Docker Image Build & Push'){
+        // stage('Docker Image Build'){
+
+        //      steps{
+
+        //         script{
+
+        //           sh 'docker image build -t mohammedmubashshiralam/webapp:latest .'
+        //         }               
+        //     }
+        // }
+        // stage('Docker Image Push'){
+
+        //      steps{
+
+        //         script{
+        //       withCredentials([string(credentialsId: 'dockerhub_pass', variable: 'dockerhub')]) {
+        //           sh """
+        //           docker login -u mohammedmubashshiralam -p ${dockerhub}
+        //           docker image push mohammedmubashshiralam/webapp:latest
+        //           docker rmi mohammedmubashshiralam/webapp:latest
+        //           """
+        //           }
+        //         }               
+        //     }
+        // }
+        // stage('EKS Cluster Creation'){
+
+        //      steps{
+
+        //         script{
+
+        //          dir('eks_module') { 
+                    
+
+        //             sh """
+        //             terraform init
+        //             terraform plan -var 'access_key=$ACCESS_KEY' -var 'secret_key=$SECRET_KEY' --var-file=./config/terraform.tfvars
+        //             terraform apply -var 'access_key=$ACCESS_KEY' -var 'secret_key=$SECRET_KEY' --var-file=./config/terraform.tfvars --auto-approve
+        //             """
+        //          }           
+        //     }
+        // }
+        // }
+        stage('Connect to EKS'){
 
              steps{
 
                 script{
-                  withCredentials([string(credentialsId: 'docker', variable: 'dockerHub_pass')]) {
                   sh """
-                  docker image build -t mohammedmubashshiralam/webapp:latest . 
-                  docker login -u mohammedmubashshiralam -p ${dockerHub_pass} 
-                  docker image push mohammedmubashshiralam/webapp:latest
-                  docker rmi mohammedmubashshiralam/webapp:latest
+                  aws configure set aws_access_key_id "$ACCESS_KEY"
+                  aws configure set aws_secret_access_key "$SECRET_KEY"
+                   aws configure set region "${params.region}"
+                  aws eks --region ${params.region} update-kubeconfig  --name  ${params.cluster}
                   """
-                  }
                 }               
             }
         }
-        stage('EKS Cluster Creation'){
+        stage('Deploy Application to EKS'){
 
              steps{
 
                 script{
-
-                 dir('eks_module') { 
-                    
-
-                    sh """
-                       terraform init
-                    terraform plan -var 'access_key=$ACCESS_KEY' -var 'secret_key=$SECRET_KEY' --var-file=./config/terraform.tfvars
-                    terraform apply -var 'access_key=$ACCESS_KEY' -var 'secret_key=$SECRET_KEY' --var-file=./config/terraform.tfvars --auto-approve
-                    """
-                 }           
+                  sh """
+                      kubectl apply -f .
+                  """
+                }               
             }
-        }
         }
     }
 }
