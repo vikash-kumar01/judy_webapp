@@ -44,8 +44,8 @@ pipeline{
                     nexusUrl: '54.204.212.156:8081', 
                     nexusVersion: 'nexus3', 
                     protocol: 'http', 
-                    repository: 'maven-release', 
-                    version: '2.0.0'
+                    repository: 'maven-snapshot', 
+                    version: '2.0.1-SNAPSHOT'
             }
            }
        }
