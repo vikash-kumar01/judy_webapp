@@ -15,43 +15,18 @@ pipeline{
                 }
             }
         }
+        stage('docker image build'){
+            steps{
+                script{
 
-       stage('Maven Build'){
-
-        steps{
-
-            script{
-
-                sh 'mvn clean install'
+                    sh """
+                    aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 996864587356.dkr.ecr.us-east-1.amazonaws.com
+                    docker build -t webapp .
+                    docker tag webapp:latest 996864587356.dkr.ecr.us-east-1.amazonaws.com/webapp:latest
+                    docker push 996864587356.dkr.ecr.us-east-1.amazonaws.com/webapp:latest
+                    """
+                }
             }
         }
-       }
-       stage('Nexus artifact upload'){
-
-           steps{
-
-            script{
-
-                def readPomVersion = readMavenPom file: 'pom.xml'
-
-                def nexusRepo =  readPomVersion.version.endsWith("SNAPSHOT") ? "maven-snapshot" : "maven-release"
-
-                nexusArtifactUploader artifacts: 
-                [[
-                    artifactId: 'springboot',
-                    classifier: '', 
-                    file: 'target/Uber.jar', 
-                    type: 'jar'
-                    ]], 
-                    credentialsId: 'd1d33924-ec59-4550-9dca-3c53c2750014', 
-                    groupId: 'com.example', 
-                    nexusUrl: '54.204.212.156:8081', 
-                    nexusVersion: 'nexus3', 
-                    protocol: 'http', 
-                    repository: nexusRepo, 
-                    version: "${readPomVersion.version}"
-            }
-           }
-       }
     }
 }
