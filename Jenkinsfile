@@ -2,6 +2,17 @@ pipeline{
 
     agent any 
 
+    parameters{
+
+        string(name: 'region', defaultVersion: 'us-east-1', description: 'Choose AWS Region')
+    }
+
+    environment{
+
+        ACCESS_KEY = credentials('AWS_ACCESS_KEY_ID')
+        SECRET_KEY = credentials('AWS_SECRET_KEY_ID')
+    }
+
     stages{
 
         stage('Git Checkout'){
@@ -20,10 +31,13 @@ pipeline{
                 script{
 
                     sh """
-                    aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 996864587356.dkr.ecr.us-east-1.amazonaws.com
+                    aws configure set aws_access_key_id "$ACCESS_KEY"
+                    aws configure set aws_secret_access_key "$SECRET_KEY"
+                    aws configure set region "${params.region}"
+                    aws ecr get-login-password --region ${params.region} | docker login --username AWS --password-stdin 996864587356.dkr.ecr.${params.region}.amazonaws.com
                     docker build -t webapp .
-                    docker tag webapp:latest 996864587356.dkr.ecr.us-east-1.amazonaws.com/webapp:latest
-                    docker push 996864587356.dkr.ecr.us-east-1.amazonaws.com/webapp:latest
+                    docker tag webapp:latest 996864587356.dkr.ecr.${params.region}.amazonaws.com/webapp:latest
+                    docker push 996864587356.dkr.ecr.${params.region}.amazonaws.com/webapp:latest
                     """
                 }
             }
