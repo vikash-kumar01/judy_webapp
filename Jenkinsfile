@@ -42,5 +42,19 @@ pipeline{
                 }
             }
         }
+        stage('EKS Module'){
+            steps{
+
+                script{
+                        dir('eks_module') {
+                        sh """
+                         terraform init
+                         terraform plan --var-file="./config/terraform.tfvars"
+                         terraform apply --var-file="./config/terraform.tfvars" --auto-approve
+                        """
+                    }
+                }
+            }
+        }
     }
 }
