@@ -4,7 +4,7 @@ pipeline{
 
     parameters{
 
-        string(name: 'region', defaultVersion: 'us-east-1', description: 'Choose AWS Region')
+        string(name: 'region', defaultValue: 'us-east-1', description: 'Choose AWS Region')
     }
 
     environment{
