@@ -5,6 +5,7 @@ pipeline{
     parameters{
 
         string(name: 'region', defaultValue: 'us-east-1', description: 'Choose AWS Region')
+        string(name: 'cluster', defaultValue: 'demo-cluster', description: 'Choose AWS Clustername')
     }
 
     environment{
@@ -53,6 +54,23 @@ pipeline{
                          terraform apply -var "access_key=$ACCESS_KEY" -var "secret_key=$SECRET_KEY" --var-file="./config/terraform.tfvars" --auto-approve
                         """
                     }
+                }
+            }
+        }
+        stage('Connect with eks cluster'){
+
+            steps{
+
+                script{
+
+                    sh """
+                    aws configure set aws_access_key_id "$ACCESS_KEY"
+                    aws configure set aws_secret_access_key "$SECRET_KEY"
+                    aws configure set region "${params.region}"
+
+                    aws eks --region "${params.region}" update-kubeconfig --name ${params.cluster}
+
+                    """
                 }
             }
         }
