@@ -82,6 +82,8 @@ pipeline{
                     sh """
                     kubectl apply -f .
 
+                    kubectl get all 
+
                     """
                 }
             }
