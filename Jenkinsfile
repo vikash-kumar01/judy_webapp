@@ -4,7 +4,7 @@ pipeline{
 
     parameters{
 
-        choice(name: 'action', choice: 'apply\ndelete' description: 'Apply or Delete the app?')
+        choice(name: 'action', choices: 'apply\ndelete' description: 'Apply or Delete the app?')
         string(name: 'region', defaultValue: 'us-east-1', description: 'Choose AWS Region')
         string(name: 'cluster', defaultValue: 'demo-cluster', description: 'Choose AWS Clustername')
     }
