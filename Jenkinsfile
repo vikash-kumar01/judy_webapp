@@ -4,6 +4,7 @@ pipeline{
 
     parameters{
 
+        choice(name: 'action', choice: 'apply\ndelete' description: 'Apply or Delete the app?')
         string(name: 'region', defaultValue: 'us-east-1', description: 'Choose AWS Region')
         string(name: 'cluster', defaultValue: 'demo-cluster', description: 'Choose AWS Clustername')
     }
@@ -76,11 +77,29 @@ pipeline{
         }
         stage('Deployment on EKS Cluster'){
 
+            when{ expression { params.action == 'apply' } }
+
             steps{
                 script{
 
                     sh """
                     kubectl apply -f .
+
+                    kubectl get all 
+
+                    """
+                }
+            }
+        }
+        stage('Delete App on EKS Cluster'){
+
+            when{ expression { params.action == 'delete' } }
+
+            steps{
+                script{
+
+                    sh """
+                    kubectl delete -f .
 
                     kubectl get all 
 
